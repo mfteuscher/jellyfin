@@ -12,6 +12,7 @@ public class ExternalPathParserTests
 {
     private readonly ExternalPathParser _audioPathParser;
     private readonly ExternalPathParser _subtitlePathParser;
+    private readonly ExternalPathParser _lyricPathParser;
 
     public ExternalPathParserTests()
     {
@@ -29,6 +30,7 @@ public class ExternalPathParserTests
 
         _audioPathParser = new ExternalPathParser(new NamingOptions(), localizationManager.Object, DlnaProfileType.Audio);
         _subtitlePathParser = new ExternalPathParser(new NamingOptions(), localizationManager.Object, DlnaProfileType.Subtitle);
+        _lyricPathParser = new ExternalPathParser(new NamingOptions(), localizationManager.Object, DlnaProfileType.Lyric);
     }
 
     [Theory]
@@ -78,6 +80,28 @@ public class ExternalPathParserTests
     public void ParseFile_SubtitleExtensionsMatched_ReturnsPath(string path)
     {
         var actual = _subtitlePathParser.ParseFile(path, string.Empty);
+        Assert.NotNull(actual);
+        Assert.Equal(path, actual!.Path);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("MySong.mp3")]
+    [InlineData("MySong.srt")]
+    [InlineData("MySong.xml")]
+    public void ParseFile_LyricExtensionsNotMatched_ReturnsNull(string path)
+    {
+        Assert.Null(_lyricPathParser.ParseFile(path, string.Empty));
+    }
+
+    [Theory]
+    [InlineData("MySong.lrc")]
+    [InlineData("MySong.elrc")]
+    [InlineData("MySong.ttml")]
+    [InlineData("MySong.txt")]
+    public void ParseFile_LyricExtensionsMatched_ReturnsPath(string path)
+    {
+        var actual = _lyricPathParser.ParseFile(path, string.Empty);
         Assert.NotNull(actual);
         Assert.Equal(path, actual!.Path);
     }
